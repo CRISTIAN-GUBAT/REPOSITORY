@@ -34,6 +34,17 @@
       background-repeat: no-repeat;
       background-size: 1.5em 1.5em;
     }
+    .password-toggle {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .password-toggle:hover {
+      color: #4b5563;
+    }
   </style>
 </head>
 <body class="relative min-h-screen bg-cover bg-center bg-no-repeat" style="background-image: url('../assets/img/Bookjpg.jpg'); background-position: center 30%;">
@@ -88,8 +99,14 @@
               </svg>
             </div>
             <input type="password" id="password" name="password" required minlength="8"
-              class="input-field w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300"
+              class="input-field w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300"
               placeholder="••••••••"/>
+            <div class="password-toggle" onclick="togglePassword('password')">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+            </div>
           </div>
           <p class="mt-1 text-xs text-gray-500">Must be at least 8 characters with uppercase, lowercase, number, and symbol</p>
         </div>
@@ -102,18 +119,15 @@
               </svg>
             </div>
             <input type="password" id="password_confirmation" name="password_confirmation" required minlength="8"
-              class="input-field w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300"
+              class="input-field w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300"
               placeholder="••••••••"/>
+            <div class="password-toggle" onclick="togglePassword('password_confirmation')">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+            </div>
           </div>
-        </div>
-        <div>
-          <label for="role" class="block text-sm font-medium text-[#5c4a3a] mb-1">Account Type</label>
-          <select id="role" name="role" required
-            class="select-arrow input-field w-full pl-3 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 bg-white">
-            <option value="" disabled selected>Select your role</option>
-            <option value="user">Regular User</option>
-            <option value="admin">Administrator</option>
-          </select>
         </div>
         <button type="submit"
           class="register-btn w-full text-white py-3 rounded-lg text-lg font-semibold transition duration-300">
@@ -136,5 +150,12 @@
   </div>
 
   <script src="../assets/js/auth.js"></script>
+  <script>
+    function togglePassword(fieldId) {
+      const passwordField = document.getElementById(fieldId);
+      const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordField.setAttribute('type', type);
+    }
+  </script>
 </body>
 </html>

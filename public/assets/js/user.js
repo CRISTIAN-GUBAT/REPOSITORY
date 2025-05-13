@@ -51,6 +51,7 @@ async function loadDashboardStats() {
     
 
         console.log("Loading dashboard stats..."); // Debug log
+        
 
         // 1. Load user stats
         const statsResponse = await makeRequest(`${API_BASE_URL}/transactions/stats`, 'GET', null, true);
@@ -67,7 +68,7 @@ async function loadDashboardStats() {
         document.getElementById('totalBorrowed').textContent = stats.total_borrowed || 0;
         document.getElementById('currentlyBorrowed').textContent = stats.currently_borrowed || 0;
         document.getElementById('overdueBooks').textContent = stats.overdue_books || 0;
-
+         
         // 2. Load active loans
         const loansResponse = await makeRequest(`${API_BASE_URL}/transactions?status=borrowed`, 'GET', null, true);
         console.log("Loans response:", loansResponse); // Debug log
@@ -125,8 +126,8 @@ async function loadDashboardStats() {
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-        <button onclick="returnBook(${loan.id})" class="px-3 py-1 ${isOverdue ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'} text-white rounded-md text-sm">
-            <i class="fas fa-undo mr-1"></i> ${isOverdue ? 'Return Now' : 'Return'}
+                   <button onclick="returnBook(${loan.id})" class="px-3 py-1 ${isOverdue ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'} text-white rounded-md text-sm">
+                 <i class="fas fa-undo mr-1"></i> ${isOverdue ? 'Return Now' : 'Return'}
     </td>
 `;
                 activeLoansTable.appendChild(row);
@@ -409,7 +410,6 @@ function setupPagination(elementId, meta, callback, ...args) {
 // Make functions available in global scope for HTML onclick attributes
 window.borrowBook = async function(bookId, cardElement = null) {
     try {
-        // Show confirmation dialog
         if (!confirm('Are you sure you want to borrow this book?')) return;
 
         // Show loading state
@@ -422,27 +422,36 @@ window.borrowBook = async function(bookId, cardElement = null) {
             }
         }
 
-        // Make API request
         const response = await makeRequest(
             `${API_BASE_URL}/books/${bookId}/borrow`, 
             'POST', 
             null, 
-            true // This sends the auth token
+            true
         );
 
-        // Handle successful response
-        showMessage('Book borrowed successfully!', 'success');
+        //showMessage('Book borrowed successfully!', 'success');
+        console.log('Book borrowed response:', response);
 
-        // Update UI
+        // Update UI immediately
         if (cardElement) {
             updateBookAvailabilityUI(cardElement, -1);
             
-            // Reset button state
             const btn = cardElement.querySelector('.borrow-btn');
             if (btn) {
                 btn.innerHTML = originalText;
                 btn.disabled = cardElement.querySelector('.available-count').textContent.split('/')[0] <= 0;
             }
+        }
+
+        // Refresh transactions and dashboard without full page reload
+        if (document.getElementById('transactionsTable')) {
+            const statusFilter = document.getElementById('statusFilter');
+            const currentStatus = statusFilter ? statusFilter.value : '';
+            await loadUserTransactions(1, currentStatus);
+        }
+
+        if (document.getElementById('dashboardStats')) {
+            await loadDashboardStats();
         }
 
         // Update modal if open
@@ -454,16 +463,10 @@ window.borrowBook = async function(bookId, cardElement = null) {
             }
         }
 
-        // Refresh transactions if on dashboard
-        if (document.getElementById('dashboardStats')) {
-            await loadDashboardStats();
-        }
-
     } catch (error) {
         console.error('Borrow error:', error);
         showMessage(`Error: ${error.message}`, 'error');
         
-        // Reset button state on error
         if (cardElement) {
             const btn = cardElement.querySelector('.borrow-btn');
             if (btn) {
@@ -646,8 +649,8 @@ window.returnBook = async function(transactionId) {
             true
         );
         
-        showMessage('Book returned successfully!', 'success');
-        
+        //showMessage('Book returned successfully!', 'success');
+        console.log('Return response:', response);
         // Refresh transactions with current filter
         const statusFilter = document.getElementById('statusFilter');
         const currentStatus = statusFilter ? statusFilter.value : '';

@@ -12,6 +12,13 @@ import {
 let currentPage = 1;
 let currentSearch = '';
 
+let currentUsersPage = 1;
+let currentUsersSearch = '';
+
+let currentTransactionspage = 1;
+let currentTransactionsStatus = '';
+let currentTransactionsSearch = '';
+
 document.addEventListener('DOMContentLoaded', async () => {
     if (!requireAuth()) return;
     
@@ -68,7 +75,6 @@ function initBookManagement() {
     loadBooks();
 }
 // Setup book modal
-// In your admin.js file, update the setupBookModal function
 function setupBookModal() {
     const modal = document.getElementById('bookModal');
     const addBtn = document.getElementById('addBookBtn');
@@ -195,8 +201,9 @@ async function handleBookSubmit() {
             throw new Error(result.message || 'Request failed');
         }
 
-        showMessage(bookId ? 'Book updated successfully!' : 'Book added successfully!', 'success');
-        document.getElementById('bookModal').classList.add('hidden');
+        console.log('Book operation response:', response);
+        form.reset(); // Reset the form
+        document.getElementById('bookModal').classList.add('hidden'); // Hide the modal
         await loadBooks(currentPage, currentSearch);
 
     } catch (error) {
@@ -224,6 +231,7 @@ function setupBookDetailsModal() {
     editBtn.addEventListener('click', () => {
         const bookId = document.getElementById('bookDetailsContent').dataset.id;
         if (bookId) {
+            modal.classList.add('hidden');
             openEditModal(bookId);
         }
     });
@@ -476,7 +484,7 @@ async function deleteBook(bookId, event) {
             throw new Error(result.message || 'Failed to delete book');
         }
         
-        showMessage('Book deleted successfully', 'success');
+        console.log('Delete book response:', result);
         await loadBooks(currentPage, currentSearch);
         
     } catch (error) {
@@ -845,8 +853,9 @@ async function deleteUser(userId) {
             throw new Error(response.message || 'Failed to delete user');
         }
 
-        showMessage(response.message || 'User deleted successfully!', 'success');
+        console.log('Delete user response:', response);
         await loadUsers(currentPage, currentSearch);
+
     } catch (error) {
         showMessage(error.message || 'Failed to delete user', 'error');
         if (deleteBtn) {
@@ -910,7 +919,7 @@ async function loadTransactions(page = 1, status = '', search = '') {
             tbody.appendChild(row);
         });
         
-        setupPagination('transactionsPagination', response.meta, (page) => {
+            setupPagination('transactionsPagination', response.meta, (page) => {
             const status = document.getElementById('statusFilter').value;
             const search = document.getElementById('transactionSearch').value;
             loadTransactions(page, status, search);
@@ -946,9 +955,7 @@ async function markAsReturned(transactionId) {
             true
         );
         
-        showMessage('Book marked as returned successfully!', 'success');
-        
-        // Reload transactions with current filters
+        console.log('Mark returned response:', response);
         const status = document.getElementById('statusFilter').value;
         const search = document.getElementById('transactionSearch').value;
         await loadTransactions(1, status, search);

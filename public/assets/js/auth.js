@@ -96,7 +96,7 @@ document.getElementById('registerForm')?.addEventListener('submit', async (e) =>
         email: document.getElementById('email').value,
         password: document.getElementById('password').value,
         password_confirmation: document.getElementById('password_confirmation').value,
-        role: document.getElementById('role').value
+       
     };
     
     // Basic client-side validation
