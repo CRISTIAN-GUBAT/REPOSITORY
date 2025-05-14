@@ -79,7 +79,7 @@ async function loadDashboardStats() {
 
         const loans = loansResponse.data || [];
         console.log("Loans data:", loans); // Debug loan data
-
+        
         const activeLoansTable = document.getElementById('activeLoansTable');
         activeLoansTable.innerHTML = '';
 
@@ -152,7 +152,7 @@ async function loadDashboardStats() {
         `;
     }
 }
-
+loadDashboardStats();
 document.addEventListener('DOMContentLoaded', async () => {
     if (!requireAuth()) return;
     
@@ -408,6 +408,7 @@ function setupPagination(elementId, meta, callback, ...args) {
 }
 
 // Make functions available in global scope for HTML onclick attributes
+// In the borrowBook function, modify it to check if the book was the last available copy
 window.borrowBook = async function(bookId, cardElement = null) {
     try {
         if (!confirm('Are you sure you want to borrow this book?')) return;
@@ -429,8 +430,10 @@ window.borrowBook = async function(bookId, cardElement = null) {
             true
         );
 
-        //showMessage('Book borrowed successfully!', 'success');
-        console.log('Book borrowed response:', response);
+        // Check if this was the last available copy
+        const wasLastCopy = cardElement ? 
+            parseInt(cardElement.querySelector('.available-count').textContent.split('/')[0]) === 1 : 
+            false;
 
         // Update UI immediately
         if (cardElement) {
@@ -443,23 +446,31 @@ window.borrowBook = async function(bookId, cardElement = null) {
             }
         }
 
-        // Refresh transactions and dashboard without full page reload
-        if (document.getElementById('transactionsTable')) {
-            const statusFilter = document.getElementById('statusFilter');
-            const currentStatus = statusFilter ? statusFilter.value : '';
-            await loadUserTransactions(1, currentStatus);
-        }
+        // If this was the last copy, refresh the page to update all book listings
+        if (wasLastCopy) {
+            // Delay slightly to show the success message
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            // Refresh transactions and dashboard without full page reload
+            if (document.getElementById('transactionsTable')) {
+                const statusFilter = document.getElementById('statusFilter');
+                const currentStatus = statusFilter ? statusFilter.value : '';
+                await loadUserTransactions(1, currentStatus);
+            }
 
-        if (document.getElementById('dashboardStats')) {
-            await loadDashboardStats();
-        }
+            if (document.getElementById('dashboardStats')) {
+                await loadDashboardStats();
+            }
 
-        // Update modal if open
-        const modal = document.getElementById('bookDetailsModal');
-        if (modal && !modal.classList.contains('hidden')) {
-            const modalBookId = modal.dataset.bookId;
-            if (modalBookId == bookId) {
-                updateModalAvailabilityUI(modal, -1);
+            // Update modal if open
+            const modal = document.getElementById('bookDetailsModal');
+            if (modal && !modal.classList.contains('hidden')) {
+                const modalBookId = modal.dataset.bookId;
+                if (modalBookId == bookId) {
+                    updateModalAvailabilityUI(modal, -1);
+                }
             }
         }
 
@@ -512,7 +523,6 @@ function updateBookAvailabilityUI(cardElement, change) {
         }
     }
 }
-
 // Helper function to update modal availability UI
 function updateModalAvailabilityUI(modal, change) {
     const modalAvailability = modal.querySelector('#modalBookAvailability');
