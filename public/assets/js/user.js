@@ -82,7 +82,7 @@ async function loadDashboardStats() {
         
         const activeLoansTable = document.getElementById('activeLoansTable');
         activeLoansTable.innerHTML = '';
-
+        loadDashboardStats();
         if (loans.length === 0) {
             console.log("No loans found in response"); // Debug log
             activeLoansTable.innerHTML = `
@@ -152,7 +152,7 @@ async function loadDashboardStats() {
         `;
     }
 }
-loadDashboardStats();
+
 document.addEventListener('DOMContentLoaded', async () => {
     if (!requireAuth()) return;
     
